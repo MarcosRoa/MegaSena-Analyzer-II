@@ -44,8 +44,16 @@ function classify(freq){
     frios: arr.slice(2*t)
   };
 }
+function generate(){
+  if(!cachedStats) return;
+  const game = [];
+  game.push(...pick(cachedStats.quentes, 2));
+  game.push(...pick(cachedStats.mornos, 2));
+  game.push(...pick(cachedStats.frios, 2));
+  self.postMessage({ type:'game', game: [...new Set(game)].sort((a,b)=>a-b) });
+}
 
-function generate(cfg){
+"""function generate(cfg){
   if(!cachedStats) return;
   const games = [];
 
@@ -74,7 +82,7 @@ function generate(cfg){
   }
 
   self.postMessage({ type:'games', games });
-}
+}"""
 
 function pick(arr,n){
   return arr.sort(()=>0.5-Math.random()).slice(0,n).map(x=>x.n);
@@ -97,3 +105,4 @@ function balanceEvenOdd(game, even, odd){
   }
   return [...new Set(g)].slice(0,6);
 }
+
