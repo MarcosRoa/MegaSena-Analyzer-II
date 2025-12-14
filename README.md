@@ -1,5 +1,5 @@
 https://marcosroa.github.io/MegaSena-Analyzer-II/
-MegaSena Analyzer
+# MegaSena Analyzer
 
 Dashboard estatístico completo para análise dos sorteios da Mega-Sena, executado 100% no navegador e publicado via GitHub Pages.
 
