@@ -1,140 +1,150 @@
 https://marcosroa.github.io/MegaSena-Analyzer-II/
-# MegaSena Analyzer
+# 🎯 MegaSena Analyzer — Dashboard Estatístico
 
-Dashboard estatístico completo para análise dos sorteios da Mega-Sena, executado 100% no navegador e publicado via GitHub Pages.
+Dashboard estatístico 100% client-side para análise histórica dos resultados da Mega-Sena, com visual moderno, gráficos interativos e heurísticas descritivas. O projeto não realiza previsões; todo o conteúdo é baseado em estatística descritiva aplicada ao histórico oficial de sorteios.
+___________________________________________________________________________________________________
+## 📌 Visão Geral
 
-⚠️ Projeto educacional e estatístico. Não há qualquer garantia ou previsão real de resultados futuros.
+O MegaSena Analyzer permite carregar um arquivo CSV com o histórico de concursos e gerar automaticamente análises visuais e tabelas estatísticas diretamente no navegador, sem backend, banco de dados ou dependências de build.
 
-📌 Funcionalidades
+Ideal para:
 
-📊 Análise Estatística
+estudos estatísticos
 
-Frequência absoluta dos números (1–60)
+visualização de padrões históricos
 
-Classificação automática em:
+projetos educacionais
 
-Quentes (mais sorteados)
+portfólios técnicos
+___________________________________________________________________________________________________
+## ✨ Funcionalidades
 
-Mornos
+📊 Análises Estatísticas
 
-Frios (menos sorteados)
+Frequência de cada número (01–60)
 
-Análise por períodos:
+Distribuição por faixas:
 
-1 ano
+01–10
 
-2 anos
+11–20
 
-5 anos
+21–30
 
-10 anos
+31–40
 
-📈 Visualizações Gráficas
+41–50
 
-Gráfico de barras (frequência)
+51–60
 
-Gráfico de tendência temporal (Top 5 números)
+Número mais frequente por faixa
 
-Heatmap de pares mais sorteados (co-ocorrência)
+Top 10 números mais sorteados
 
-🎯 Gerador Inteligente de Jogos
+Pares mais sorteados (Top 10)
 
-Geração balanceada de apostas
+Tríades mais sorteadas (Top 10)
+___________________________________________________________________________________________________
+## 📈 Visualizações
 
-Distribuição estatística:
+Gráfico de barras (frequência dos números)
 
-2 números quentes
+Gráfico de pizza (distribuição por faixa)
 
-2 números mornos
+Tabelas dinâmicas sincronizadas com os gráficos
+___________________________________________________________________________________________________
+## 🧠 Heurísticas Descritivas
 
-2 números frios
+Média histórica de ocorrências
 
-Evita duplicações
+Quantidade de números acima da média
 
-Ordenação automática
+Orientação heurística baseada em balanceamento estatístico
+___________________________________________________________________________________________________
+## 🎲 Geração de Jogos (Estudo Estatístico)
 
-📤 Exportação
+Geração automática de 5 jogos
 
-Exportar jogos gerados em:
+Jogos ponderados pela frequência histórica
 
-CSV (Excel / Sheets)
+Sem repetição de dezenas
 
-JSON (integração com scripts)
+Uso exclusivamente heurístico
+___________________________________________________________________________________________________
+## 🚀 Como Usar
 
-🧠 Arquitetura Técnica
+Opção 1 — Abrir localmente
 
-Frontend puro (HTML + CSS + JavaScript)
+Baixe o arquivo index.html
 
-Nenhuma dependência externa
+Abra-o diretamente em qualquer navegador moderno
 
-Execução totalmente client-side
+Informe uma URL de CSV ou selecione um arquivo local
 
-Compatível com GitHub Pages
+Opção 2 — GitHub Pages
 
-Preparado para uso com Web Workers
+Suba o arquivo para um repositório
 
-🚀 Publicação no GitHub Pages
+Ative o GitHub Pages
 
-Estrutura do repositório
+Acesse via navegador
+___________________________________________________________________________________________________
+## 📂 Formato do CSV esperado
 
-/
-├── docs/
-│   └── index.html
-└── README.md
+O arquivo CSV deve conter, no mínimo, as seguintes colunas:
 
-Passo a passo
+Concurso,Data,Dezena1,Dezena2,Dezena3,Dezena4,Dezena5,Dezena6,...
 
-Crie a pasta docs/
+Exemplo de fonte pública:
 
-Salve o arquivo index.html dentro dela
+Base histórica oficial da Mega-Sena
+___________________________________________________________________________________________________
+🛠 Tecnologias Utilizadas
 
-Faça commit e push para o GitHub
+HTML5 / CSS3
 
-Vá em Settings → Pages
+JavaScript (Vanilla)
 
-Configure:
+Chart.js (via CDN)
 
-Source: Deploy from a branch
+Nenhuma dependência de backend ou framework.
+___________________________________________________________________________________________________
+## ⚠️ Aviso Importante
 
-Branch: main
+Este projeto:
 
-Folder: /docs
+Não prevê resultados futuros
 
-Salve
+Não garante ganhos
 
-O site ficará disponível em:
+Utiliza apenas estatística histórica
 
-https://SEU_USUARIO.github.io/NOME_DO_REPOSITORIO/
+O objetivo é educacional, analítico e demonstrativo.
+___________________________________________________________________________________________________
+## 📌 Próximas Evoluções (Roadmap)
 
-📱 Compatibilidade
+Filtro por período (últimos X concursos)
 
-Desktop
+Configuração de quantidade de jogos gerados
 
-Tablets
+Exportação (TXT / CSV / JSON)
 
-Smartphones
+Modo escuro
 
-Interface adaptada para mobile-first.
+Transformação em PWA
+___________________________________________________________________________________________________
+## 📄 Licença
 
-⚡ Performance
+Projeto de uso livre para fins educacionais e demonstrativos.
 
-Processamento local
+Desenvolvido com foco em clareza estatística, robustez técnica e responsabilidade analítica.
 
-Estrutura pronta para uso com Web Workers
+___________________________________________________________________________________________________
+## 👤 Autor
 
-Sem bloqueio da UI durante cálculos pesados
-
-📜 Aviso Legal
-
-Este projeto utiliza estatística descritiva baseada em dados históricos públicos.
-
-Loterias são eventos aleatórios. Resultados passados não influenciam resultados futuros.
-
-👤 Autor
-
-Projeto desenvolvido para fins educacionais e demonstrativos.
-
-⭐ Sugestão
+Projeto desenvolvido por Marcos Roa, para fins educacionais e demonstrativos.
+___________________________________________________________________________________________________
+## ⭐ Sugestão
 
 Se este projeto foi útil para você, considere dar uma ⭐ no repositório.
 
