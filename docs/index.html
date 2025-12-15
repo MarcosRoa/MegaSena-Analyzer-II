@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MegaSena Analyzer — Dashboard Estatístico</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:#f4f6f9;color:#111}
+    header{background:#111827;color:#fff;padding:16px}
+    header h1{margin:0;font-size:1.4rem}
+    main{padding:16px;max-width:1200px;margin:auto}
+    .card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);padding:16px;margin-bottom:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    button,input,select{padding:8px 10px;border-radius:8px;border:1px solid #cbd5e1}
+    button{background:#2563eb;color:#fff;border:none;cursor:pointer}
+    button:hover{background:#1d4ed8}
+    canvas{max-height:320px}
+    footer{font-size:.85rem;color:#555;margin-top:24px;text-align:center}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:6px;border-bottom:1px solid #e5e7eb;text-align:left}
+  </style>
+</head>
+<body>
+<header>
+  <h1>MegaSena Analyzer — Dashboard Estatístico</h1>
+  <div>Análise visual e estatística baseada no histórico oficial (uso apenas descritivo).</div>
+</header>
+<main>
+  <div class="card">
+    <label>CSV de resultados (local ou URL pública):</label><br>
+    <input id="csvUrl" size="80" value="https://raw.githubusercontent.com/programadriano/mongodb-megasena/master/megasena.csv" />
+    <button id="loadCsv">Carregar CSV</button>
+    <input id="file" type="file" accept=".csv" />
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Top 10 — Números mais sorteados</h3>
+      <ol id="top10"></ol>
+    </div>
+    <div class="card">
+      <h3>Números mais frequentes por grupo</h3>
+      <table id="groupTable"></table>
+    </div>
+
+    <div class="card">
+      <h3>Frequência dos números</h3>
+      <canvas id="freqChart"></canvas>
+    </div>
+    <div class="card">
+      <h3>Distribuição por faixa</h3>
+      <canvas id="groupChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Pares mais sorteados</h3>
+      <table id="pairTable"></table>
+    </div>
+    <div class="card">
+      <h3>Tríades mais sorteadas</h3>
+      <table id="triTable"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Heurística descritiva para próximo sorteio</h3>
+    <div id="heuristic"></div>
+  </div>
+
+  <div class="card">
+    <h3>5 Jogos gerados pelo sistema (heurístico)</h3>
+    <pre id="games"></pre>
+  </div>
+
+  <footer>
+    Estatísticas baseadas em frequência histórica. Não representam previsão ou garantia de resultado.
+  </footer>
+</main>
+
+<script>
+// ================================
+// Estado global
+// ================================
+let allDraws = [];
+
+// ================================
+// Utilitários
+// ================================
+function log(msg){ console.log('[MegaSena]', msg); }
+
+// ================================
+// Leitura e parsing de CSV
+// ================================
+function parseCsv(csv){
+  const lines = csv.split(/\r?\n/).filter(l => l.trim());
+  return lines.slice(1).map(l=>{
+    const c = l.split(/,|;/).map(x=>x.replace(/"/g,'').trim());
+    if(c.length < 8) return null;
+    return {
+      data: c[1],
+      dezenas: c.slice(2,8).map(n=>parseInt(n,10)).filter(n=>!isNaN(n))
+    };
+  }).filter(Boolean);
+}
+
+// ================================
+// Análises estatísticas
+// ================================
+function analyze(draws){
+  const freq = Array(61).fill(0);
+  const pair = new Map();
+  const tri = new Map();
+
+  draws.forEach(d=>{
+    const nums = [...new Set(d.dezenas)].sort((a,b)=>a-b);
+    nums.forEach(n=>freq[n]++);
+
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        const k = nums[i].toString().padStart(2,'0')+'-'+nums[j].toString().padStart(2,'0');
+        pair.set(k,(pair.get(k)||0)+1);
+      }
+    }
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        for(let k=j+1;k<nums.length;k++){
+          const kk=[nums[i],nums[j],nums[k]].map(x=>x.toString().padStart(2,'0')).join('-');
+          tri.set(kk,(tri.get(kk)||0)+1);
+        }
+      }
+    }
+  });
+
+  return {freq, pair, tri};
+}
+
+// ================================
+// Renderização (gráficos)
+// ================================
+let freqChart, groupChart;
+function renderCharts(freq){
+  const labels = Array.from({length:60},(_,i)=>i+1);
+
+  if(freqChart) freqChart.destroy();
+  freqChart = new Chart(document.getElementById('freqChart'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Ocorrências',data:freq.slice(1)}]},
+    options:{responsive:true}
+  });
+
+  const groups=[0,0,0,0,0,0];
+  for(let i=1;i<=60;i++) groups[Math.floor((i-1)/10)] += freq[i];
+
+  if(groupChart) groupChart.destroy();
+  groupChart = new Chart(document.getElementById('groupChart'),{
+    type:'pie',
+    data:{labels:['01-10','11-20','21-30','31-40','41-50','51-60'],datasets:[{data:groups}]},
+    options:{responsive:true}
+  });
+}
+
+// ================================
+// Renderização (tabelas)
+// ================================
+function renderTables(pair, tri, freq){
+  const pairArr = [...pair.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('pairTable').innerHTML = '<tr><th>Par</th><th>Qtd</th></tr>' +
+    pairArr.map(p=>`<tr><td>${p[0]}</td><td>${p[1]}</td></tr>`).join('');
+
+  const triArr = [...tri.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('triTable').innerHTML = '<tr><th>Tríade</th><th>Qtd</th></tr>' +
+    triArr.map(t=>`<tr><td>${t[0]}</td><td>${t[1]}</td></tr>`).join('');
+
+  const top10 = Array.from({length:60},(_,i)=>({n:i+1,c:freq[i+1]}))
+    .sort((a,b)=>b.c-a.c).slice(0,10);
+  document.getElementById('top10').innerHTML = top10.map(o=>`<li>${o.n} — ${o.c}</li>`).join('');
+
+  const groups = [[],[],[],[],[],[]];
+  for(let i=1;i<=60;i++){
+    const g = Math.floor((i-1)/10);
+    groups[g].push({n:i,c:freq[i]});
+  }
+  document.getElementById('groupTable').innerHTML = '<tr><th>Faixa</th><th>Número</th><th>Qtd</th></tr>' +
+    groups.map((g,i)=>{
+      const m = g.sort((a,b)=>b.c-a.c)[0];
+      return `<tr><td>${i*10+1}-${i*10+10}</td><td>${m.n}</td><td>${m.c}</td></tr>`;
+    }).join('');
+}
+
+function generateGames(freq){
+  const weighted = [];
+  for(let i=1;i<=60;i++) for(let k=0;k<freq[i];k++) weighted.push(i);
+  const games=[];
+  for(let g=0;g<5;g++){
+    const set=new Set();
+    while(set.size<6) set.add(weighted[Math.floor(Math.random()*weighted.length)]);
+    games.push([...set].sort((a,b)=>a-b).join(', '));
+  }
+  return games;
+}
+
+function renderHeuristic(freq){
+  const avg = freq.slice(1).reduce((a,b)=>a+b,0)/60;
+  const hot = freq.map((c,i)=>({i,c})).slice(1).filter(o=>o.c>avg).length;
+  document.getElementById('heuristic').innerHTML =
+    `Média de ocorrências: ${avg.toFixed(2)}<br>`+
+    `Quantidade de números acima da média: ${hot}<br>`+
+    `Heurística: balancear pares/ímpares e evitar extremos consecutivos.`;
+
+  document.getElementById('games').textContent = generateGames(freq).join('\n');
+}
+
+// ================================
+// Carregamento de dados
+// ================================
+async function loadCsvText(txt){
+  allDraws = parseCsv(txt);
+  log('Concursos carregados: '+allDraws.length);
+  const result = analyze(allDraws);
+  renderCharts(result.freq);
+  renderTables(result.pair, result.tri, result.freq);
+  renderHeuristic(result.freq);
+}
+
+// ================================
+// Eventos
+// ================================
+document.getElementById('loadCsv').onclick = async()=>{
+  const res = await fetch(document.getElementById('csvUrl').value);
+  loadCsvText(await res.text());
+};
+
+document.getElementById('file').onchange = e=>{
+  const r=new FileReader();
+  r.onload=()=>loadCsvText(r.result);
+  r.readAsText(e.target.files[0]);
+};
+</script>
+</body>
+</html>
